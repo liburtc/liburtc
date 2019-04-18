@@ -1,0 +1,109 @@
+liburtc
+=======
+
+Real-time communication for microcontrollers
+
+The WebRTC reference implementation was designed for web browsers, namely
+Chromium. It requires specialized build tools, over 10GB of disk space for
+source code, and produces a binary with a large footprint. liburtc, on the
+other hand, is designed with the following goals in mind:
+
+* Small footprint. Under 100KB.
+* Portable. Implemented in C (C99) and works on nearly any architecture and
+  POSIX.1-2001 compliant operating system.
+* Easy to use. Straight-forward to compile and integrate into your code.
+* Standards compliant. Adheres to IETF specs to ensure interoperability.
+* Minimal. Only implements subset of protocols required for basic functionality
+  for common embedded applications, such as smart cameras.
+* Minimal dependencies. Only dependency is OpenSSL.
+
+
+Bootstrapping
+-------------
+
+If checking out this code via `git`, run `autoconf` to generate a `configure`
+script.
+
+
+Quickstart
+----------
+
+To compile the library and usage example from source, you will need autoconf,
+automake, and libtool. Use `autogen.sh` to create a `configure` script for
+configuring and making the library:
+
+    ./autogen.sh && ./configure && make
+
+To test the library:
+
+    make check
+
+Next, see `example/README.md` for running a demo.
+
+
+Features
+--------
+
+- Autotools based build process
+- POSIX.1-2001 compliant implementation
+
+/ sdp
+/ stun client
+- ice agent (state machine)
+  - aes cbc encipher / decipher (openssl)
+- v4l2
+- libx264
+- libopus
+- dtls (openssl?)
+- srtp
+
+- ANSI C compliant implementation (C99)
+- BSD sockets (winsock not supported)
+
+- Session Description Protocol (SDP)
+  - SHA-256 certificate fingerprint
+
+- Interactive Connectivity Establishment (ICE) agent
+  - STUN: RFC 5389 compliant client (no server capability)
+  - TURN: RFC 5766 compliant client (no server capability)
+
+- DTLS-SRTP transport
+  - RFC 5764 compliant implementation (using OpenSSL)
+
+- Video codecs:
+  - H.264
+    - Profiles: baseline, constrained baseline, main, high
+    - Levels: 3.1 and up
+  - H.265 not supported (few, if any, browsers support this)
+  - VP8/9 not supported (few embedded devices support this)
+
+- Video sources:
+  - Video4Linux2
+  - USB Video Class
+
+- Audio codecs:
+  - G.711
+  - Opus
+
+- Audio sources:
+  - ALSA
+  - PulseAudio
+
+
+Possible Future Improvements
+----------------------------
+
+- seamless handoff between network interfaces (e.g. cellular and wifi)
+
+Notes
+-----
+
+- A thread is used per peer connection. Each thread asynchronously handles
+  i/o events.
+
+
+Credits
+-------
+
+- Diego Elio Petteno (https://autotools.io) for the wonderful resource on
+  autoconf, automake, libtool, and other tools in the autotools suite.
