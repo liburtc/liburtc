@@ -1,16 +1,17 @@
-liburtc
-=======
+INTRODUCTION
 
-Real-time communication for microcontrollers
+liburtc is a small-footprint WebRTC native stack for embedded devices, such as
+IP cameras.
 
-The WebRTC reference implementation was designed for web browsers, namely
-Chromium. It requires specialized build tools, over 10GB of disk space for
-source code, and produces a binary with a large footprint. liburtc, on the
-other hand, is designed with the following goals in mind:
+Google's WebRTC reference implementation was designed for web browsers, namely
+Chromium. It requires specialized Google build tools (i.e. Bazel), over 10GB of
+disk space for the source code alone, resulting in a large binary tens of
+megabytes in size. liburtc, on the other hand, is designed with the following
+goals in mind:
 
 * Small footprint. Under 100KB.
-* Portable. Implemented in C (C99) and works on nearly any architecture and
-  POSIX.1-2001 compliant operating system.
+* Portable. Implemented in C (C99) to work on nearly any architecture,
+  POSIX.1-2001 compliant operating system, and environment.
 * Easy to use. Straight-forward to compile and integrate into your code.
 * Standards compliant. Adheres to IETF specs to ensure interoperability.
 * Minimal. Only implements subset of protocols required for basic functionality
@@ -18,92 +19,42 @@ other hand, is designed with the following goals in mind:
 * Minimal dependencies. Only dependency is OpenSSL.
 
 
-Bootstrapping
--------------
+WHAT IS WEBRTC?
 
-If checking out this code via `git`, run `autoconf` to generate a `configure`
-script.
+In a nutshell, it is a Voice-over-IP videophone that can be actuated via
+Javascript (i.e. RTCPeerConnection API). It is a the only form of real-time
+communication (< 300ms end-to-end latency) ubiquitously supported by web
+browsers.
+
+For example, liburtc enables a web browser to view video from an IP camera
+with sub-300ms latency over wide-area networks. It also supports bi-directional
+audio and data, for instance for a smart cameras or teleoperated devices.
 
 
-Quickstart
-----------
+BOOTSTRAPPING
+
+If checking out this code via git, you first need to generate a 'configure'
+script:
+
+    ./autogen.sh
+
+
+QUICKSTART
 
 To compile the library and usage example from source, you will need autoconf,
-automake, and libtool. Use `autogen.sh` to create a `configure` script for
-configuring and making the library:
+automake, and libtool. Then:
 
-    ./autogen.sh && ./configure && make
+    ./configure && make
 
 To test the library:
 
     make check
 
-Next, see `example/README.md` for running a demo.
+Next, see 'example/README.md' for running a demo.
 
 
-Features
---------
+CONCURRENCY MODEL
 
-- Autotools based build process
-- POSIX.1-2001 compliant implementation
-
-/ sdp
-/ stun client
-- ice agent (state machine)
-  - aes cbc encipher / decipher (openssl)
-- v4l2
-- libx264
-- libopus
-- dtls (openssl?)
-- srtp
-
-- ANSI C compliant implementation (C99)
-- BSD sockets (winsock not supported)
-
-- Session Description Protocol (SDP)
-  - SHA-256 certificate fingerprint
-
-- Interactive Connectivity Establishment (ICE) agent
-  - STUN: RFC 5389 compliant client (no server capability)
-  - TURN: RFC 5766 compliant client (no server capability)
-
-- DTLS-SRTP transport
-  - RFC 5764 compliant implementation (using OpenSSL)
-
-- Video codecs:
-  - H.264
-    - Profiles: baseline, constrained baseline, main, high
-    - Levels: 3.1 and up
-  - H.265 not supported (few, if any, browsers support this)
-  - VP8/9 not supported (few embedded devices support this)
-
-- Video sources:
-  - Video4Linux2
-  - USB Video Class
-
-- Audio codecs:
-  - G.711
-  - Opus
-
-- Audio sources:
-  - ALSA
-  - PulseAudio
-
-
-Possible Future Improvements
-----------------------------
-
-- seamless handoff between network interfaces (e.g. cellular and wifi)
-
-Notes
------
-
-- A thread is used per peer connection. Each thread asynchronously handles
-  i/o events.
-
-
-Credits
--------
-
-- Diego Elio Petteno (https://autotools.io) for the wonderful resource on
-  autoconf, automake, libtool, and other tools in the autotools suite.
+A new thread is used for each peer connection. All network i/o and timer events
+related to the peer connection are then processed via a select/poll/epoll event
+loop on the thread.
