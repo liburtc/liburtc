@@ -1,4 +1,7 @@
 /**
+ * Simple callee example (web browser is caller). Sends video to caller upon
+ * incoming calls.
+ *
  * Copyright (c) 2019-2021 Chris Hiszpanski. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,55 +27,36 @@
  * OF SUCH DAMAGE.
  */
 
-#ifndef URTC_G711_H
-#define URTC_G711_H
+#include <signal.h>
+#include <unistd.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "urtc.h"
 
-#include <stddef.h>
-#include <stdint.h>
 
-extern const uint8_t pcm2ulaw[];
-extern const int16_t ulaw2pcm[];
+int main() {
+	sigset_t ss;
+	int signal;
 
-/**
- * ITU-T G.711 compand a 16-bit signed PCM audio buffer. Buffer may contain
- * multiple channels, in which case \a n must be the number of frames times
- * the number of channels.
- *
- * Only the upper 13-bits are companded. The lowest 3-bits are discarded.
- *
- * \a dst must be allocated and point to at least (\a n / 2) bytes. \a dst
- * and \a src may overlap.
- * 
- * @param dst Destination buffer
- * @param src Signed 16-bit sample source buffer
- * @param n   Number of samples (frames times channels)
- */
-void g711_encode(uint8_t *dst, const int16_t *src, size_t n);
+	const char *stun[] = {
+		"stun.liburtc.org",
+		NULL
+	};
 
-/**
- * ITU-T G.711 decompand to a 16-bit signed PCM audio buffer. Buffer may
- * contain multiple channels, in which case \a n must be the number of frames
- * times the number of channels.
- *
- * The decompanded samples are normalized to 16-bits (the lowest 3-bits will be
- * zero).
- *
- * \a dst must NOT overlap with \a src.
- *
- * @param dst Destination buffer
- * @param src Signed 16-bit sample source buffer
- * @param n   Number of samples (frames times channels)
- */
-void g711_decode(int16_t *dst, const uint8_t *src, size_t n);
+	sigemptyset(&ss);
+	sigaddset(&ss, SIGINT);
+	sigaddset(&ss, SIGTERM);
+	sigaddset(&ss, SIGQUIT);
 
-#ifdef __cplusplus
+        // create a new peer connection (no actual network communication yet)
+	urtc_peerconn_t *pc = urtc_peerconn_create(NULL);
+
+	// connect to signaling service
+
+	sigwait(&ss, &signal);
+
+	urtc_peerconn_destroy(pc);
+
+	return 0;
 }
-#endif
-
-#endif /* URTC_G711_H */
 
 /* vim: set expandtab ts=8 sw=4 tw=0 : */
