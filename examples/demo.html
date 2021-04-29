@@ -4,12 +4,105 @@
     <title>liburtc demo</title>
     <script src="//webrtchacks.github.io/adapter/adapter-latest.js"></script>
     <script>
-      // call liburtc peer
+      // send offer and get answer
+      let sendOffer = offer => {
+        return new Promise((resolve, reject) => {
+          let xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+              resolve(new RTCSessionDescription({
+                type: "offer",
+                sdp: xhr.responseText
+              }));
+            }
+          };
+          xhr.open("POST", "http://localhost/offer");
+          xhr.setRequestHeader("Content-Type", "application/json");
+          xhr.send(JSON.stringify(offer));
+        });
+      };
+
+      function sendCandidate(candidate) {
+        let req = new XMLHttpRequest();
+        req.open("POST", "http://localhost/candidate");
+        req.setRequestHeader("Content-Type", "application/json");
+        req.send(JSON.stringify(candidate));
+      };
+
+      window.onload = function demo() {
+        // create new peer connection
+        let pc = new RTCPeerConnection({
+          iceCandidatePoolSize: 4,
+          iceServers: [
+            { urls: "stun:stun.liburtc.org" }
+          ]
+        });
+
+        // (callback) called upon discovery of new local ICE candidate
+        pc.onicecandidate = function(event) {
+          if (event.candidate) {
+            console.log("local candidate:\n%c%s", "color: brown", event.candidate.candidate);
+          }
+        };
+
+        // (callback) called upon reception of new remote video track
+        pc.ontrack = function(event) {
+          document.getElementById("remoteVideo").srcObject = event.streams[0];
+        };
+
+        // create offer and send to remote
+        pc.createOffer({ offerToReceiveVideo: true }).then(function(offer) {
+          console.log("local offer:\n%c%s", "color: orange", offer.sdp);
+          pc.setLocalDescription(offer);
+          sendOffer(offer).then(function(answer) {
+            console.log("remote answer:\n%c%s", "color: green", answer.sdp);
+            pc.setRemoteDescription(answer)
+              .catch(function(reason) {
+                console.log(reason);
+              });
+          });
+        }).catch(function(reason) {
+          console.log(reason);
+        });
+      }
     </script>
+    <style>
+      html, body {
+        font-family: Arial, Helvetica, sans-serif;
+        text-align: center;
+      }
+      main {
+        margin-left: auto;
+        margin-right: auto;
+        width: 80%;
+      }
+      p {
+        text-align: left;
+      }
+      video {
+        background-color: #eee;
+        border: solid 1px #bbb;
+        width: 100%;
+      }
+    </style>
   </head>
   <body>
     <h1>liburtc demo</h1>
 
+    <main>
+    <p>
+      In this demo, this web browser is the caller and liburtc is the callee.
+    </p>
+
+    <p>
+      This browser creates an offer and relays it to liburtc via a simple
+      signaling server (HTTP/1.0 long-polling). liburtc replies with an
+      answer, again via the signaling service.
+    </p>
+
     <video autoplay controls muted playsinline id="remoteVideo"></video>
+    </main>
+
+
   </body>
 </html>

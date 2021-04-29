@@ -425,20 +425,20 @@ int urtc_add_ice_candidate(struct peerconn *pc, const char *cand) {
     return -URTC_ERR_NOT_IMPLEMENTED;
 }
 
-int urtc_create_answer(struct peerconn *pc, char **answer) {
-    return -URTC_ERR_NOT_IMPLEMENTED;
+int urtc_create_answer(struct peerconn *pc, char *answer, size_t size) {
+    return sdp_serialize(answer, size, &pc->ldesc);
 }
 
-int urtc_create_offer(struct peerconn *pc, char **offer) {
+int urtc_create_offer(struct peerconn *pc, char *offer, size_t size) {
     return -URTC_ERR_NOT_IMPLEMENTED;
 }
 
 int urtc_set_remote_description(struct peerconn *pc, const char *desc) {
-    return -URTC_ERR_NOT_IMPLEMENTED;
+    return sdp_parse(&pc->rdesc, desc);
 }
 
 int urtc_set_local_description(struct peerconn *pc, const char *desc) {
-    return -URTC_ERR_NOT_IMPLEMENTED;
+    return sdp_parse(&pc->ldesc, desc);
 }
 
 void urtc_peerconn_destroy(struct peerconn *pc) {

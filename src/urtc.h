@@ -151,12 +151,12 @@ int urtc_add_ice_candidate(urtc_peerconn_t *pc, const char *cand);
  * Akin to `createAnswer` method of `RTCPeerConnection` in WebRTC JS API.
  *
  * \param pc Peer connection
- * \param answer Pointer to string pointer pointing to generated answer.
- *               Memory internally managed (caller need not and must not free).
+ * \param answer Destination pointer for generated answer.
+ * \param size Bytes available at destination.
  *
  * \return 0 on success, negative on error.
  */
-int urtc_create_answer(urtc_peerconn_t *pc, char **answer);
+int urtc_create_answer(urtc_peerconn_t *pc, char *answer, size_t size);
 
 /**
  * Creates a local description for an offering peer connection
@@ -170,12 +170,12 @@ int urtc_create_answer(urtc_peerconn_t *pc, char **answer);
  * Akin to `createOffer` method of `RTCPeerConnection` in WebRTC JS API.
  *
  * \param pc Peer connection
- * \param offer Pointer to string pointer pointing to generated offer.
- *              Memory interally managed (caller need no and must not free).
+ * \param offer Destination pointer for generated offer.
+ * \param size Bytes available at destination.
  *
  * \return 0 on success, negative on error.
  */
-int urtc_create_offer(urtc_peerconn_t *pc, char **offer);
+int urtc_create_offer(urtc_peerconn_t *pc, char *offer, size_t size);
 
 /**
  * Sets local description for peer connection
