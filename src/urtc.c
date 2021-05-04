@@ -39,6 +39,7 @@
 #include <sys/socket.h>                 // socket
 #include <sys/types.h>
 
+#include "b64.h"                        // b64_encode
 #include "err.h"
 #include "log.h"
 #include "mdns.h"                       // mdns_subscribe, mdns_unsubscribe
@@ -426,6 +427,17 @@ int urtc_add_ice_candidate(struct peerconn *pc, const char *cand) {
 }
 
 int urtc_create_answer(struct peerconn *pc, char *answer, size_t size) {
+    char pwd[18]; // 24 base64 characters
+    char ufrag[3]; // 4 base64 characters
+
+    prng(pwd, sizeof(pwd));
+    prng(ufrag, sizeof(ufrag));
+
+    b64_encode(pc->ldesc.pwd, pwd, sizeof(pwd));
+    b64_encode(pc->ldesc.ufrag, ufrag, sizeof(ufrag));
+
+    pc->ldesc.mode = SDP_MODE_SEND_ONLY;
+
     return sdp_serialize(answer, size, &pc->ldesc);
 }
 
