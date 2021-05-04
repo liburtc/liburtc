@@ -37,6 +37,7 @@
 #include <arpa/inet.h>                  // inet_ntoa
 #include <netinet/in.h>                 // IPPROTO_UDP
 #include <sys/socket.h>                 // socket
+#include <sys/time.h>                   // gettimeofday
 #include <sys/types.h>
 
 #include "b64.h"                        // b64_encode
@@ -427,15 +428,29 @@ int urtc_add_ice_candidate(struct peerconn *pc, const char *cand) {
 }
 
 int urtc_create_answer(struct peerconn *pc, char *answer, size_t size) {
-    char pwd[18]; // 24 base64 characters
-    char ufrag[3]; // 4 base64 characters
+    // write unique session id
+    {
+        struct timeval now;
+        if (-1 == gettimeofday(&now, NULL)) {
+            return -1;
+        }
+        snprintf(pc->ldesc.session_id, sizeof(pc->ldesc.session_id),
+                "%lu", now.tv_sec);
+    }
 
-    prng(pwd, sizeof(pwd));
-    prng(ufrag, sizeof(ufrag));
+    strcpy(pc->ldesc.mid[0], "video");
 
-    b64_encode(pc->ldesc.pwd, pwd, sizeof(pwd));
-    b64_encode(pc->ldesc.ufrag, ufrag, sizeof(ufrag));
+    // write ice-pwd and ice-ufrag
+    {
+        char pwd[18];                   // 24 base64 characters
+        char ufrag[3];                  // 4 base64 characters
+        prng(pwd, sizeof(pwd));
+        prng(ufrag, sizeof(ufrag));
+        b64_encode(pc->ldesc.pwd, pwd, sizeof(pwd));
+        b64_encode(pc->ldesc.ufrag, ufrag, sizeof(ufrag));
+    }
 
+    pc->ldesc.ice_options.trickle = true;
     pc->ldesc.mode = SDP_MODE_SEND_ONLY;
 
     return sdp_serialize(answer, size, &pc->ldesc);

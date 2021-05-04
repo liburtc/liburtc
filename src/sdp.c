@@ -497,9 +497,8 @@ int sdp_serialize(char *dst, size_t len, const struct sdp *src) {
 
     // write originator and session identifier
     n = snprintf(dst, len,
-        "o=liburtc/0.0.0 %s %s IN IP4 127.0.0.1\n",
-        src->session_id,
-        src->session_version
+        "o=- %s 0 IN IP4 127.0.0.1\n",
+        src->session_id
     );
     if (n < 0) return -URTC_ERR_SDP_MALFORMED;
     if (n >= len) return -URTC_ERR_SDP_MALFORMED;
@@ -692,7 +691,7 @@ int sdp_serialize(char *dst, size_t len, const struct sdp *src) {
 
     // write media attribute: media id
     // TODO fix hardcoded media id
-    n = snprintf(dst, len, "a=mid:0\n");
+    n = snprintf(dst, len, "a=mid:video\n");
     if (n < 0) return -URTC_ERR_SDP_MALFORMED;
     if (n >= len) return -URTC_ERR_SDP_MALFORMED;
     dst += n;
