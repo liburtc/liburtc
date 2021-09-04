@@ -1,4 +1,4 @@
-AC_INIT([liburtc], [1.0.0], [chris@hiszpanski.name])
+AC_INIT([liburtc], [1.0.0], [chris@liburtc.org])
 
 # custom m4 macros within m4/ subdirectory
 AC_CONFIG_MACRO_DIR([m4])
