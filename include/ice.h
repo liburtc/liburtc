@@ -55,6 +55,7 @@ typedef struct {
 
 // ICE base
 typedef struct {
+    int _;
 } ice_base_t;
 
 // ICE component

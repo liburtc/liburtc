@@ -33,13 +33,13 @@
 extern "C" {
 #endif
 
-enum level {
-    TRACE = 0,
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL,
+enum urtc_level {
+    URTC_TRACE = 0,
+    URTC_DEBUG,
+    URTC_INFO,
+    URTC_WARN,
+    URTC_ERROR,
+    URTC_FATAL,
     NUM_LEVELS // must be last
 };
 
@@ -74,7 +74,7 @@ static const char *logr[NUM_LEVELS] = {
 #define TOSTRING(x) STRINGIFY(x)
 #define AT __FILE__ ":" TOSTRING(__LINE__)
 
-#define log(lvl, format, ...) \
+#define urtc_log(lvl, format, ...) \
     do { \
         fprintf(stderr, "%s" AT " %s" format "%s", logl[lvl], logn[lvl], ##__VA_ARGS__, logr[lvl]); \
     } while (0);

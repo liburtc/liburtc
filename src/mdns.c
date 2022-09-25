@@ -90,11 +90,11 @@ struct __attribute__((__packed__)) answer {
  *
  * \return Socket file descriptor on success, negative on error.
  */
-int mdns_subscribe() {
+int mdns_subscribe(void) {
     // create socket
     int sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (-1 == sockfd) {
-        log(ERROR, "%s", strerror(errno));
+        urtc_log(URTC_ERROR, "%s", strerror(errno));
         goto _fail_create_socket;
     }
 
@@ -112,7 +112,7 @@ int mdns_subscribe() {
             &opt,
             sizeof(opt)
         )) {
-            log(ERROR, "%s", strerror(errno));
+            urtc_log(URTC_ERROR, "%s", strerror(errno));
             goto _fail_enable_addr_reuse;
         }
     }
@@ -125,7 +125,7 @@ int mdns_subscribe() {
             .sin_port = htons(MDNS_PORT)
         };
         if (-1 == bind(sockfd, (struct sockaddr *)(&mgroup), sizeof(mgroup))) {
-            log(ERROR, "%s", strerror(errno));
+            urtc_log(URTC_ERROR, "%s", strerror(errno));
             goto _fail_bind;
         }
     }
@@ -140,7 +140,7 @@ int mdns_subscribe() {
             &opt,
             sizeof(opt)
         )) {
-            log(ERROR, "setsockopt: %s", strerror(errno));
+            urtc_log(URTC_ERROR, "setsockopt: %s", strerror(errno));
             goto _fail_disable_loopback;
         }
     }
@@ -158,7 +158,7 @@ int mdns_subscribe() {
             &imr,
             sizeof(imr)
         )) {
-            log(ERROR, "setsockopt: %s", strerror(errno));
+            urtc_log(URTC_ERROR, "setsockopt: %s", strerror(errno));
             goto _fail_join_multicast_group;
         }
     }
@@ -186,7 +186,7 @@ _fail_create_socket:
  */
 int mdns_unsubscribe(int sockfd) {
     if (-1 == close(sockfd)) {
-        log(ERROR, "close: %s", strerror(errno));
+        urtc_log(URTC_ERROR, "close: %s", strerror(errno));
         return -URTC_ERR;
     }
 
@@ -204,7 +204,7 @@ int mdns_query(const char *name) {
     // create socket
     int msockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (-1 == msockfd) {
-        log(FATAL, "socket: %s", strerror(errno));
+        urtc_log(URTC_FATAL, "socket: %s", strerror(errno));
     }
 
     uint8_t q[512];
@@ -243,7 +243,7 @@ int mdns_query(const char *name) {
         .sin_port = htons(MDNS_PORT)
     };
     if (-1 == sendto(msockfd, q, qlen, 0, (struct sockaddr *)(&mgroup), sizeof(mgroup))) {
-        log(FATAL, "sendto: %s", strerror(errno));
+        urtc_log(URTC_FATAL, "sendto: %s", strerror(errno));
     }
 
     return 0;
@@ -523,7 +523,7 @@ int mdns_send_response(int sockfd, const char *hostname) {
 
     // get linked list of network interfaces
     if (-1 == getifaddrs(&ifaddrs)) {
-        log(ERROR, "%s", strerror(errno));
+        urtc_log(URTC_ERROR, "%s", strerror(errno));
         goto _fail_getifaddrs;
     }
 
@@ -600,7 +600,7 @@ int mdns_send_response(int sockfd, const char *hostname) {
         (struct sockaddr *)(&mgroup),
         sizeof(mgroup)
     )) {
-        log(FATAL, "sendto: %s", strerror(errno));
+        urtc_log(URTC_FATAL, "sendto: %s", strerror(errno));
     }
 
     return 0;

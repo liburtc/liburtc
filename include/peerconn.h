@@ -50,8 +50,8 @@ typedef struct urtc_peerconn {
 	ice_agent_t *agent;
 
 	// Local and remote session descriptions
-	urtc_sdp_t *ldesc;
-	urtc_sdp_t *rdesc;
+	sdp_t *ldesc;
+	sdp_t *rdesc;
 
 	// Event callbacks
 	void (*onIceCandidate)(const char *cand, void *arg);

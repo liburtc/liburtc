@@ -113,6 +113,13 @@ typedef struct sdp {
         int count;
     } video;
 
+    // audio media
+    struct {
+        uint16_t port;
+        struct sdp_rtpmap params[SDP_MAX_RTP_PAYLOAD_TYPES];
+        int count;
+    } audio;
+
     sdp_mode_t mode;                    // send, receive, and send-and-receive
 
     bool rtcp_mux;                      // is rtcp multiplexed on same socket

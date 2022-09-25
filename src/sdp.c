@@ -176,10 +176,10 @@ static int sdp_parse_attr_rtpmap(struct sdp *sdp, char *val) {
     if (!val) return -URTC_ERR_SDP_MALFORMED;
 
     unsigned int pt;                    // payload type
-    char         en[7];                 // encoding name
+    char         en[10];                // encoding name
     unsigned int cr;                    // clock rate
     
-    if (3 != sscanf(val, "%3d %6[a-zA-Z0-9]%*c%5d", &pt, en, &cr)) {
+    if (3 != sscanf(val, "%3d %9[a-zA-Z0-9]%*c%5d", &pt, en, &cr)) {
         return -URTC_ERR_SDP_MALFORMED_ATTRIBUTE;
     }
 
@@ -468,7 +468,7 @@ int sdp_parse(struct sdp *dst, const char *str) {
         for (char *in = copy, *line = strsep(&in, "\r\n"); in; line = strsep(&in, "\r\n")) {
             retval = sdp_parse_line(dst, line);
             if (retval != 0) {
-                log(ERROR, "sdp_parse_line returned %i for %s", retval, line);
+                urtc_log(URTC_ERROR, "sdp_parse_line returned %i for %s", retval, line);
                 break;
             }
         }

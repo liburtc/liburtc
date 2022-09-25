@@ -212,17 +212,17 @@ static int socket_event_handler(struct peerconn *pc) {
 
     // rtp
     if ((127 < buffer[0]) && (buffer[0] < 192)) {
-        log(INFO, "[rtp] %s", inet_ntoa(ra.sin_addr));
+        urtc_log(URTC_INFO, "[rtp] %s", inet_ntoa(ra.sin_addr));
         rtp_handler(pc, buffer, n);
     } else
     // dtls
     if ((19 < buffer[0]) && (buffer[0] < 64)) {
-        log(INFO, "[dtls] %s", inet_ntoa(ra.sin_addr));
+        urtc_log(URTC_INFO, "[dtls] %s", inet_ntoa(ra.sin_addr));
         dtls_handler(pc, buffer, n);
     } else
     // stun
     if (buffer[0] < 2) {
-        log(INFO, "[stun] %s", inet_ntoa(ra.sin_addr));
+        urtc_log(URTC_INFO, "[stun] %s", inet_ntoa(ra.sin_addr));
         stun_handler(pc, buffer, n);
     }
 
@@ -265,7 +265,7 @@ static int mdns_handler(struct peerconn *pc) {
         NULL,
         NULL
     ), -1 == n) {
-        log(ERROR, "%s", strerror(errno));
+        urtc_log(URTC_ERROR, "%s", strerror(errno));
         goto _fail_recvfrom;
     }
 
@@ -273,12 +273,12 @@ static int mdns_handler(struct peerconn *pc) {
     int type = mdns_validate_query(buffer, n, pc->mdns.hostname);
     if (type > 0) {
         if (type | TYPE_A) {
-            log(DEBUG, "[mdns] received A query");
+            urtc_log(URTC_DEBUG, "[mdns] received A query");
             // ...respond to query with interface addresses
             mdns_send_response(pc->mdns.sockfd, pc->mdns.hostname);
         }
         if (type | TYPE_AAAA) {
-            log(DEBUG, "[mdns] received AAAA query");
+            urtc_log(URTC_DEBUG, "[mdns] received AAAA query");
         }
     }
 
@@ -385,7 +385,7 @@ urtc_peerconn_t * urtc_peerconn_create(const char *stun[]) {
 
     // generate a unique local mDNS hostname
     uuid_create_str(pc->mdns.hostname);
-    log(INFO, "mDNS hostname is %s.local", pc->mdns.hostname);
+    urtc_log(URTC_INFO, "mDNS hostname is %s.local", pc->mdns.hostname);
 
     // open multicast udp socket for replying to mDNS queries
     pc->mdns.sockfd = mdns_subscribe();
